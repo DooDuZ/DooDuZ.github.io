@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link href = "/css/index.css" rel="stylesheet">
+</head>
+<body>
+    <div class="wrap">
+        <h1> Gifticon 교환 </h1>
+        <div class="container">
+            <div class="list">
+                <div>
+                    <table class="couponList"></table>
+                </div>
+                <div>
+                    <table class="storeList"></table>
+                </div>
+            </div>
+
+            <div class="inputBox">
+                <h3><Strong>쿠폰 코드와 사용할 매장을 입력해주세요.</Strong></h3>
+                <div>
+                    <input type="text" class="store" placeholder="매장 코드"> <br>
+                    <input type="text" class="coupon" placeholder="쿠폰 코드">
+                    <button class="registBtn" onclick="claim()" >쿠폰 등록</button>
+                </div>
+                <div class="resultBox">
+                    <p class="result"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="/js/index.js"></script>
+</body>
+</html>

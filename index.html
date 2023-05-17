@@ -102,15 +102,38 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script>
-        function getDetector(e){
+        function getDetector(src){
             console.log("시작");
+            console.log(src);
 
-            const imgFile = e.target.files[0];
-            // const imageUrl = URL.createObjectURL(imgFile);
-            const imageUrl = "https://www.cognex.com/library/media/resources/symbologies/code128.jpg?h=250&w=447&la=ko-KR&hash=702DF2E77039F1EB91E4131FC7C4C246";
+            Quagga.decodeSingle({
+                decoder: {
+                    readers : [
+                                'code_128_reader',
+                                'ean_reader',
+                                'ean_8_reader',
+                                'code_39_reader',
+                                'code_39_vin_reader',
+                                'codabar_reader',
+                                'upc_reader',
+                                'upc_e_reader',
+                                'i2of5_reader',
+                                '2of5_reader',
+                                'code_93_reader'
+                              ]
+                },
+                locate: true,
+                src: src // or 'data:image/jpg;base64,' + data
+            }, function(result){
+                console.log(result);
+                if(result.codeResult) {
+                    console.log("result", result.codeResult.code);
+                } else {
+                    console.log("not detected");
+                }
+            });
 
-            console.log(imageUrl);
-
+            /*
             Quagga.init({
                 inputStream : {
                   name : "ImageStream",
@@ -138,6 +161,7 @@
                 console.log('인식된 바코드: ' + code);
                 Quagga.stop();
             });
+            */
         }
 
         const fileInput = document.querySelector('#fileInput');
@@ -154,7 +178,7 @@
             file.onload = (i) =>{
                 imgPreview.src = i.target.result;
                 console.log(imgPreview.src);
-                getDetector(e);
+                getDetector(imgPreview.src);
             }
         }
 

@@ -65,6 +65,12 @@
             position : absolute;
             right : 20px;
         }
+
+        .fileTest{
+            position : absolute;
+            right : 200px;
+            top : 200px;
+        }
     </style>
 </head>
 <body>
@@ -82,19 +88,77 @@
 
         <!-- 기기의 카메라에 접근하여 영상을 페이지에 재생한다. -->
         <video id="camera--view" autoplay playsinline></video>
-        
         <img src="//:0" alt="" id="camera--output">
+
+        <div class="fileTest">
+            <input type="file" id="fileInput">
+            <img src="" alt="" id="file--output">
+        </div>
 
         <button id="camera--trigger">사진촬영</button>
         <button id="regist" onclick="regist()">전송</button>
 
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script>
+        function getDetector(e){
+            console.log("시작");
+
+            const imgFile = e.target.files[0];
+            const imageUrl = URL.createObjectURL(imgFile);
+
+            Quagga.init({
+                inputStream : {
+                  name : "Image",
+                  type : "ImageStream",
+                  target: document.querySelector('#file--output'),
+                  src : imageUrl
+                },
+                decoder : {
+                  readers : ['ean_reader', 'code_128_reader', 'code_39_reader']
+                }
+              }, function(err) {
+                  if (err) {
+                      console.log(err);
+                      return;
+                  }
+                  console.log("Initialization finished. Ready to start");
+                  Quagga.start();
+              });
+
+              console.log("중간");
+
+            // 바코드 감지 결과 처리
+            Quagga.onDetected((result) => {
+                const code = result.codeResult.code;
+                console.log('인식된 바코드: ' + code);
+                Quagga.stop();
+            });
+        }
+
+        const fileInput = document.querySelector('#fileInput');
+
+        fileInput.addEventListener('change', e => {
+            displayImg(e);
+        })
+
+        function displayImg(e) {
+            const imgPreview = document.querySelector('#file--output');
+
+            let file = new FileReader();
+            file.readAsDataURL(e.target.files[0]);
+            file.onload = (i) =>{
+                imgPreview.src = i.target.result;
+                console.log(imgPreview.src);
+                getDetector(e);
+            }
+        }
+
+
 
         let curData;
-
         function regist(){
 
             let formData = new FormData();

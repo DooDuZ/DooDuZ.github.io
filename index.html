@@ -97,7 +97,6 @@
 
         <button id="camera--trigger">사진촬영</button>
         <button id="regist" onclick="regist()">전송</button>
-
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
@@ -107,11 +106,14 @@
             console.log("시작");
 
             const imgFile = e.target.files[0];
-            const imageUrl = URL.createObjectURL(imgFile);
+            // const imageUrl = URL.createObjectURL(imgFile);
+            const imageUrl = "https://www.cognex.com/library/media/resources/symbologies/code128.jpg?h=250&w=447&la=ko-KR&hash=702DF2E77039F1EB91E4131FC7C4C246";
+
+            console.log(imageUrl);
 
             Quagga.init({
                 inputStream : {
-                  name : "Image",
+                  name : "ImageStream",
                   type : "ImageStream",
                   target: document.querySelector('#file--output'),
                   src : imageUrl

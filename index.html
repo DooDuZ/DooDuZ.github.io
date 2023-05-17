@@ -102,6 +102,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script>
+
+        if (window.BarcodeDetector == undefined) {
+          console.error('Barcode Detection not supported on this platform');
+        }
+
         function getDetector(src){
             console.log("시작");
             console.log(src);

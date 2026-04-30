@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#FAFAF9" />
+<meta name="description" content="language._.by · 거리에서 만나는, 여러 장르의 노래" />
+<title>language._.by — busking</title>
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg:          #FAFAF9;
+    --fg:          #0A0A0A;
+    --muted:       #737373;
+    --line:        rgba(0, 0, 0, 0.12);
+    --input-bg:    #FFFFFF;
+    --accent:      #0A0A0A;
+    --accent-fg:   #FAFAF9;
+    --accent-soft: rgba(0, 0, 0, 0.06);
+    --success:     #15803D;
+    --success-bg:  rgba(21, 128, 61, 0.08);
+
+    --gutter: 22px;
+    --section-gap: 22px;
+
+    --font-sans: "Pretendard", ui-sans-serif, -apple-system, system-ui, "Helvetica Neue", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .page {
+    max-width: 480px;
+    margin: 0 auto;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 28px)
+      var(--gutter)
+      calc(env(safe-area-inset-bottom, 0px) + 36px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--section-gap);
+  }
+
+  /* ── Hero ─────────────────────────────────────────── */
+  .hero { display: flex; flex-direction: column; gap: 14px; }
+  .hero__meta {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .hero__tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+  }
+  .hero__dot {
+    width: 8px; height: 8px;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  .hero__title {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: -1.2px;
+    color: var(--fg);
+  }
+  .hero__bio {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.5;
+    max-width: 280px;
+  }
+  .hero__rule {
+    width: 100%; height: 1px; background: var(--line); margin-top: 4px;
+  }
+
+  /* ── Action row ──────────────────────────────────── */
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .action {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+    padding: 12px;
+    background: var(--accent);
+    color: var(--accent-fg);
+    border-radius: 12px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+  }
+  .action__caption {
+    font-size: 9.5px;
+    opacity: 0.6;
+    font-family: var(--font-mono);
+    letter-spacing: 0.6px;
+  }
+  .action__value {
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-top: 1px;
+  }
+
+  /* ── Section header ──────────────────────────────── */
+  .section { display: flex; flex-direction: column; gap: 10px; }
+  .section__head {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section__label {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .section__label--accent { color: var(--accent); }
+  .section__rule { flex: 1; height: 1px; background: var(--line); }
+
+  /* ── Setlist ─────────────────────────────────────── */
+  .setlist { display: flex; flex-direction: column; }
+  .setlist__row {
+    all: unset;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 4px;
+    transition: all 180ms ease;
+    box-sizing: border-box;
+  }
+  .setlist__row + .setlist__row {
+    border-top: 1px dashed var(--line);
+  }
+  .setlist__badge {
+    width: 22px; height: 22px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    background: transparent;
+  }
+  .setlist__row.is-active .setlist__badge {
+    background: var(--accent);
+    color: var(--accent-fg);
+    border-color: transparent;
+  }
+  .setlist__badge-num { display: inline; }
+  .setlist__badge-icon { display: none; }
+  .setlist__row.is-active .setlist__badge-num { display: none; }
+  .setlist__row.is-active .setlist__badge-icon { display: inline-flex; }
+  .setlist__main { min-width: 0; flex: 1; }
+  .setlist__title {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--fg);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .setlist__row.is-active .setlist__title { font-weight: 600; }
+  .setlist__sub {
+    font-size: 10.5px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .setlist__now {
+    display: none;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.6px;
+    color: var(--accent);
+  }
+  .setlist__row.is-active .setlist__now { display: inline; }
+
+  /* ── Tabs ────────────────────────────────────────── */
+  .tabs { display: flex; flex-direction: column; gap: 10px; }
+  .tabs__track {
+    display: flex; gap: 4px;
+    padding: 3px;
+    background: var(--input-bg);
+    border: 1px solid var(--line);
+    border-radius: 11px;
+  }
+  .tabs__btn {
+    all: unset;
+    cursor: pointer;
+    flex: 1;
+    padding: 8px 10px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    background: transparent;
+    border-radius: 8px;
+    transition: all 180ms ease;
+    font-family: inherit;
+  }
+  .tabs__btn[aria-selected="true"] {
+    color: var(--accent-fg);
+    background: var(--accent);
+  }
+  .tabs__panel { display: none; flex-direction: column; gap: 8px; }
+  .tabs__panel[data-active="true"] { display: flex; }
+
+  /* ── Donate panel ────────────────────────────────── */
+  .account {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  .account__info { min-width: 0; flex: 1; }
+  .account__bank {
+    font-size: 10.5px;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .account__num {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--fg);
+    font-weight: 600;
+    margin-top: 2px;
+    letter-spacing: 0.2px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .copy-btn {
+    flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 180ms ease;
+  }
+  .copy-btn.is-copied {
+    border-color: var(--success);
+    background: var(--success-bg);
+    color: var(--success);
+  }
+  .copy-btn__copied { display: none; }
+  .copy-btn.is-copied .copy-btn__default { display: none; }
+  .copy-btn.is-copied .copy-btn__copied { display: inline-flex; align-items: center; gap: 5px; }
+
+  .donate-link {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--fg);
+  }
+  .donate-link__left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .donate-link__tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.8px;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 4px;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .donate-link__label {
+    font-size: 12.5px;
+    color: var(--fg);
+    font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .donate-link__url {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--muted);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    max-width: 55%;
+  }
+
+  /* ── Request form ────────────────────────────────── */
+  .request { display: flex; flex-direction: column; gap: 8px; }
+  .request input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--input-bg);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .request input:focus { border-color: var(--fg); }
+  .request__submit {
+    margin-top: 2px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: var(--accent-fg);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 200ms ease;
+  }
+  .request__submit.is-sent { background: var(--success); }
+  .request__submit__sent { display: none; align-items: center; gap: 8px; }
+  .request__submit.is-sent .request__submit__default { display: none; }
+  .request__submit.is-sent .request__submit__sent { display: inline-flex; }
+  .request__submit__default { display: inline-flex; align-items: center; gap: 8px; }
+
+  /* ── QR / Share ──────────────────────────────────── */
+  .qr {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .qr__tile {
+    padding: 6px;
+    background: #fff;
+    border-radius: 4px;
+    flex-shrink: 0;
+    width: 72px; height: 72px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qr__tile canvas, .qr__tile img, .qr__tile svg { width: 60px !important; height: 60px !important; display: block; }
+  .qr__text { min-width: 0; flex: 1; }
+  .qr__caption {
+    font-size: 9.5px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    letter-spacing: 1px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .qr__body {
+    font-size: 12.5px;
+    color: var(--fg);
+    margin-top: 3px;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  /* ── Footer ──────────────────────────────────────── */
+  .footer {
+    margin-top: 4px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ── A11y ────────────────────────────────────────── */
+  :focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+</style>
+</head>
+<body>
+<main class="page" role="main">
+
+  <!-- Block 1 — Hero -->
+  <header class="hero">
+    <div class="hero__meta">
+      <div class="hero__tag">BUSKER ⏤ 26.05</div>
+      <span class="hero__dot" aria-hidden="true"></span>
+    </div>
+    <h1 class="hero__title">language<br />._.by</h1>
+    <p class="hero__bio">거리에서 만나는, 여러 장르의 노래. 신청곡과 후원 모두 환영해요.</p>
+    <div class="hero__rule" aria-hidden="true"></div>
+  </header>
+
+  <!-- Block 2 — Action row -->
+  <nav class="actions" aria-label="외부 링크">
+    <a class="action" href="https://instagram.com/language._.by" target="_blank" rel="noreferrer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="5"/>
+        <circle cx="12" cy="12" r="4"/>
+        <circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/>
+      </svg>
+      <div>
+        <div class="action__caption">FOLLOW</div>
+        <div class="action__value">@language._.by</div>
+      </div>
+    </a>
+    <a class="action" href="#support">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>
+      </svg>
+      <div>
+        <div class="action__caption">SUPPORT</div>
+        <div class="action__value">후원하기</div>
+      </div>
+    </a>
+  </nav>
+
+  <!-- Block 3 — Setlist -->
+  <section class="section" aria-label="오늘의 셋리스트">
+    <div class="section__head">
+      <div class="section__label section__label--accent">Today · Setlist</div>
+      <div class="section__rule" aria-hidden="true"></div>
+    </div>
+    <div class="setlist" id="setlist" role="list">
+      <!-- rows injected by JS; static fallback below -->
+      <button class="setlist__row" role="listitem" data-idx="0">
+        <span class="setlist__badge"><span class="setlist__badge-num">01</span><span class="setlist__badge-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span></span>
+        <span class="setlist__main"><span class="setlist__title">Autumn Leaves</span><span class="setlist__sub">Eva Cassidy / cover</span></span>
+        <span class="setlist__now">NOW</span>
+      </button>
+      <button class="setlist__row" role="listitem" data-idx="1">
+        <span class="setlist__badge"><span class="setlist__badge-num">02</span><span class="setlist__badge-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span></span>
+        <span class="setlist__main"><span class="setlist__title">사랑이 떠나가네</span><span class="setlist__sub">이상은 / cover</span></span>
+        <span class="setlist__now">NOW</span>
+      </button>
+      <button class="setlist__row is-active" role="listitem" data-idx="2">
+        <span class="setlist__badge"><span class="setlist__badge-num">03</span><span class="setlist__badge-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span></span>
+        <span class="setlist__main"><span class="setlist__title">여름밤의 꿈</span><span class="setlist__sub">original</span></span>
+        <span class="setlist__now">NOW</span>
+      </button>
+      <button class="setlist__row" role="listitem" data-idx="3">
+        <span class="setlist__badge"><span class="setlist__badge-num">04</span><span class="setlist__badge-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span></span>
+        <span class="setlist__main"><span class="setlist__title">Moon River</span><span class="setlist__sub">Henry Mancini / cover</span></span>
+        <span class="setlist__now">NOW</span>
+      </button>
+      <button class="setlist__row" role="listitem" data-idx="4">
+        <span class="setlist__badge"><span class="setlist__badge-num">05</span><span class="setlist__badge-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span></span>
+        <span class="setlist__main"><span class="setlist__title">이름 없는 노래 03</span><span class="setlist__sub">original</span></span>
+        <span class="setlist__now">NOW</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Block 4 — Support / Request tabs -->
+  <section class="section" id="support" aria-label="후원 및 신청곡">
+    <div class="section__head">
+      <div class="section__label">Support / Request</div>
+      <div class="section__rule" aria-hidden="true"></div>
+    </div>
+    <div class="tabs">
+      <div class="tabs__track" role="tablist" aria-label="후원/신청곡 전환">
+        <button class="tabs__btn" role="tab" aria-selected="true" aria-controls="panel-donate" id="tab-donate" data-tab="donate">후원</button>
+        <button class="tabs__btn" role="tab" aria-selected="false" aria-controls="panel-request" id="tab-request" data-tab="request">신청곡</button>
+      </div>
+
+      <div class="tabs__panel" id="panel-donate" role="tabpanel" aria-labelledby="tab-donate" data-active="true">
+        <div class="account">
+          <div class="account__info">
+            <div class="account__bank">카카오뱅크 · 김 ◯ ◯</div>
+            <div class="account__num" id="account-num">3333-12-3456789</div>
+          </div>
+          <button class="copy-btn" type="button" id="copy-btn" data-copy="3333123456789" aria-label="계좌번호 복사">
+            <span class="copy-btn__default">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <rect x="9" y="9" width="11" height="11" rx="2"/>
+                <path d="M5 15V6a2 2 0 0 1 2-2h9"/>
+              </svg>
+              복사
+            </span>
+            <span class="copy-btn__copied">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 12l5 5L20 6"/>
+              </svg>
+              복사됨
+            </span>
+          </button>
+        </div>
+        <a class="donate-link" href="https://toss.me/language_by" target="_blank" rel="noreferrer">
+          <span class="donate-link__left">
+            <span class="donate-link__tag">TOSS</span>
+            <span class="donate-link__label">토스 송금</span>
+          </span>
+          <span class="donate-link__url">toss.me/language_by ↗</span>
+        </a>
+        <a class="donate-link" href="https://qr.kakaopay.com/language_by" target="_blank" rel="noreferrer">
+          <span class="donate-link__left">
+            <span class="donate-link__tag">KAKAO</span>
+            <span class="donate-link__label">카카오페이</span>
+          </span>
+          <span class="donate-link__url">qr.kakaopay.com/language_by ↗</span>
+        </a>
+      </div>
+
+      <div class="tabs__panel" id="panel-request" role="tabpanel" aria-labelledby="tab-request" data-active="false">
+        <form class="request" id="request-form" novalidate>
+          <label class="sr-only" for="req-title">곡 제목</label>
+          <input id="req-title" name="title" type="text" placeholder="곡 제목 *" autocomplete="off" required />
+          <label class="sr-only" for="req-artist">아티스트</label>
+          <input id="req-artist" name="artist" type="text" placeholder="아티스트 (선택)" autocomplete="off" />
+          <label class="sr-only" for="req-from">신청자</label>
+          <input id="req-from" name="from" type="text" placeholder="누구한테? (선택, 예: 지나가던 직장인)" autocomplete="off" />
+          <button class="request__submit" type="submit" id="request-submit">
+            <span class="request__submit__default">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 12l18-8-8 18-2-8-8-2z"/>
+              </svg>
+              신청곡 보내기
+            </span>
+            <span class="request__submit__sent">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 12l5 5L20 6"/>
+              </svg>
+              전달됐어요
+            </span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Block 5 — Share -->
+  <section class="section" aria-label="페이지 공유">
+    <div class="section__head">
+      <div class="section__label">Share</div>
+      <div class="section__rule" aria-hidden="true"></div>
+    </div>
+    <div class="qr">
+      <div class="qr__tile" id="qr-tile" aria-hidden="true"></div>
+      <div class="qr__text">
+        <div class="qr__caption">SHARE THIS PAGE</div>
+        <div class="qr__body">QR 캡처해서 친구한테 공유해주세요</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Block 6 — Footer -->
+  <footer class="footer">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6z"/></svg>
+    <span>THANKS FOR LISTENING</span>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6z"/></svg>
+  </footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" defer></script>
+<script>
+(function () {
+  'use strict';
+
+  // ── Setlist toggle ───────────────────────────────
+  var setlist = document.getElementById('setlist');
+  if (setlist) {
+    setlist.addEventListener('click', function (e) {
+      var row = e.target.closest('.setlist__row');
+      if (!row) return;
+      var rows = setlist.querySelectorAll('.setlist__row');
+      rows.forEach(function (r) { r.classList.remove('is-active'); });
+      row.classList.add('is-active');
+    });
+  }
+
+  // ── Tabs ─────────────────────────────────────────
+  var tabBtns = document.querySelectorAll('.tabs__btn');
+  tabBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var key = btn.getAttribute('data-tab');
+      tabBtns.forEach(function (b) {
+        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+      });
+      document.getElementById('panel-donate').setAttribute('data-active', key === 'donate' ? 'true' : 'false');
+      document.getElementById('panel-request').setAttribute('data-active', key === 'request' ? 'true' : 'false');
+    });
+  });
+
+  // ── Copy account number ─────────────────────────
+  var copyBtn = document.getElementById('copy-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      var digits = copyBtn.getAttribute('data-copy') || '';
+      var done = function () {
+        copyBtn.classList.add('is-copied');
+        setTimeout(function () { copyBtn.classList.remove('is-copied'); }, 1600);
+      };
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(digits).then(done, function () { fallback(digits, done); });
+        } else {
+          fallback(digits, done);
+        }
+      } catch (e) { fallback(digits, done); }
+    });
+  }
+  function fallback(text, done) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      done();
+    } catch (e) {}
+  }
+
+  // ── Request form ─────────────────────────────────
+  var form = document.getElementById('request-form');
+  var submit = document.getElementById('request-submit');
+  if (form && submit) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var title = (document.getElementById('req-title').value || '').trim();
+      if (!title) return;
+      var artist = (document.getElementById('req-artist').value || '').trim();
+      var from = (document.getElementById('req-from').value || '').trim();
+      // TODO: connect real backend (Formspree / Google Form / Notion).
+      console.log('[request]', { title: title, artist: artist, from: from, at: new Date().toISOString() });
+      submit.classList.add('is-sent');
+      submit.disabled = true;
+      setTimeout(function () {
+        submit.classList.remove('is-sent');
+        submit.disabled = false;
+        form.reset();
+      }, 2200);
+    });
+  }
+
+  // ── QR render ───────────────────────────────────
+  function renderQR() {
+    var tile = document.getElementById('qr-tile');
+    if (!tile || typeof QRCode === 'undefined') return;
+    var url = window.location.href.split('#')[0];
+    QRCode.toCanvas(url, { margin: 0, width: 60, color: { dark: '#0a0a0a', light: '#ffffff' } }, function (err, canvas) {
+      if (err || !canvas) return;
+      tile.innerHTML = '';
+      tile.appendChild(canvas);
+    });
+  }
+  if (document.readyState === 'complete') {
+    renderQR();
+  } else {
+    window.addEventListener('load', renderQR);
+  }
+})();
+</script>
+</body>
+</html>

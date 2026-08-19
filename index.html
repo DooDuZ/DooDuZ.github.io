@@ -213,6 +213,22 @@
     text-decoration: none;
   }
   .setlist__catalog:hover { color: var(--fg); }
+  .setlist__more {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font: 600 10px var(--font-mono);
+    letter-spacing: .04em;
+  }
+  .setlist__more[hidden] { display: none; }
+  .setlist__more:hover { border-color: var(--fg); color: var(--fg); }
+  .setlist__pinned { margin-bottom: 8px; border-bottom: 1px solid var(--line); }
   .setlist__tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .setlist__manage {
     all: unset;
@@ -244,13 +260,15 @@
   .manager__broadcast .manager__button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--accent-fg); }
   .manager__form input { min-width: 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--input-bg); color: var(--fg); font: 13px var(--font-sans); }
   .manager__form input:focus { border-color: var(--fg); outline: none; }
-  .manager__list { display: flex; flex-direction: column; margin-top: 12px; }
+  .manager__list { display: flex; flex-direction: column; max-height: min(42dvh, 360px); margin-top: 12px; padding-right: 4px; overflow-y: auto; scrollbar-gutter: stable; }
   .manager__item { padding: 9px 0; border-bottom: 1px dashed var(--line); }
   .manager__item-main { min-width: 0; flex: 1; }
   .manager__item-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; font-weight: 600; }
   .manager__item-sub { margin-top: 2px; color: var(--muted); font-size: 10.5px; }
   .manager__actions { flex-shrink: 0; }
   .manager__action { width: 28px; height: 28px; padding: 0; }
+  .manager__action--current { width: auto; min-width: 36px; padding: 0 6px; font-size: 9px; letter-spacing: .04em; }
+  .manager__action--current.is-current { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
   .manager__empty { padding: 18px 0; color: var(--muted); font-size: 12px; text-align: center; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
 
@@ -503,9 +521,11 @@
       <div class="section__label section__label--accent">Today · Setlist</div>
       <div class="section__rule" aria-hidden="true"></div>
     </div>
+    <div class="setlist__pinned" id="setlist-pinned" role="list" hidden></div>
     <div class="setlist" id="setlist" role="list">
       <p class="manager__empty">오늘의 곡을 준비 중이에요.</p>
     </div>
+    <button class="setlist__more" id="setlist-more" type="button" hidden></button>
     <div class="setlist__tools">
       <a class="setlist__catalog" href="songs/index.html">전체 곡 목록 ↗</a>
       <button class="setlist__manage" type="button" id="setlist-manage">세트리스트 관리</button>
@@ -729,6 +749,8 @@
   const setlistRef = ref(database, 'todaySetlist');
   const provider = new GoogleAuthProvider();
   const setlistEl = document.getElementById('setlist');
+  const pinnedSetlistEl = document.getElementById('setlist-pinned');
+  const setlistMoreEl = document.getElementById('setlist-more');
   const manager = document.getElementById('setlist-manager');
   const statusEl = document.getElementById('manager-status');
   const signedOutEl = document.getElementById('manager-signed-out');
@@ -742,6 +764,7 @@
   let currentSetlist = fallbackSetlist;
   let catalog = [];
   let activeUser = null;
+  let visibleSetlistCount = 8;
 
   function escapeHtml(value) {
     return String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
@@ -767,13 +790,24 @@
     if (!setlistEl) return;
     if (!currentSetlist.items.length) {
       setlistEl.innerHTML = '<p class="manager__empty">아직 오늘의 곡이 없어요.</p>';
+      pinnedSetlistEl.hidden = true;
+      setlistMoreEl.hidden = true;
       return;
     }
-    setlistEl.innerHTML = currentSetlist.items.map((item, index) => {
+    const visibleItems = currentSetlist.items.slice(0, visibleSetlistCount);
+    const renderSetlistRow = (item, index) => {
       const active = item.id === currentSetlist.currentId;
       const content = `<span class="setlist__badge"><span class="setlist__badge-num">${String(index + 1).padStart(2, '0')}</span><span class="setlist__badge-icon" aria-hidden="true">♪</span></span><span class="setlist__main"><span class="setlist__title">${escapeHtml(item.title)}</span><span class="setlist__sub">${escapeHtml(item.subtitle || '신청곡')}</span></span><span class="setlist__now">NOW</span>`;
       return item.path ? `<a class="setlist__row ${active ? 'is-active' : ''}" role="listitem" href="${escapeHtml(item.path)}">${content}</a>` : `<div class="setlist__row ${active ? 'is-active' : ''}" role="listitem">${content}</div>`;
-    }).join('');
+    };
+    setlistEl.innerHTML = visibleItems.map(renderSetlistRow).join('');
+    const currentIndex = currentSetlist.items.findIndex((item) => item.id === currentSetlist.currentId);
+    const currentItem = currentSetlist.items[currentIndex];
+    pinnedSetlistEl.hidden = currentIndex < visibleItems.length;
+    pinnedSetlistEl.innerHTML = pinnedSetlistEl.hidden ? '' : renderSetlistRow(currentItem, currentIndex);
+    const remainingCount = currentSetlist.items.length - visibleItems.length;
+    setlistMoreEl.hidden = remainingCount <= 0;
+    setlistMoreEl.textContent = `${remainingCount}곡 더 보기`;
   }
 
   function renderManager() {
@@ -782,7 +816,10 @@
       managerList.innerHTML = '<p class="manager__empty">곡을 추가해 보세요.</p>';
       return;
     }
-    managerList.innerHTML = currentSetlist.items.map((item, index) => `<div class="manager__item"><div class="manager__item-main"><div class="manager__item-title">${escapeHtml(item.title)}</div><div class="manager__item-sub">${escapeHtml(item.subtitle || '신청곡')}</div></div><div class="manager__actions"><button class="manager__button manager__action" data-action="current" data-id="${escapeHtml(item.id)}" aria-label="현재 곡으로 설정">●</button><button class="manager__button manager__action" data-action="up" data-id="${escapeHtml(item.id)}" ${index === 0 ? 'disabled' : ''} aria-label="위로 이동">↑</button><button class="manager__button manager__action" data-action="down" data-id="${escapeHtml(item.id)}" ${index === currentSetlist.items.length - 1 ? 'disabled' : ''} aria-label="아래로 이동">↓</button><button class="manager__button manager__action manager__button--danger" data-action="remove" data-id="${escapeHtml(item.id)}" aria-label="삭제">×</button></div></div>`).join('');
+    managerList.innerHTML = currentSetlist.items.map((item, index) => {
+      const isCurrent = item.id === currentSetlist.currentId;
+      return `<div class="manager__item"><div class="manager__item-main"><div class="manager__item-title">${escapeHtml(item.title)}</div><div class="manager__item-sub">${escapeHtml(item.subtitle || '신청곡')}</div></div><div class="manager__actions"><button class="manager__button manager__action manager__action--current ${isCurrent ? 'is-current' : ''}" data-action="current" data-id="${escapeHtml(item.id)}" aria-label="현재 곡으로 설정" aria-pressed="${isCurrent}">NOW</button><button class="manager__button manager__action" data-action="up" data-id="${escapeHtml(item.id)}" ${index === 0 ? 'disabled' : ''} aria-label="위로 이동">↑</button><button class="manager__button manager__action" data-action="down" data-id="${escapeHtml(item.id)}" ${index === currentSetlist.items.length - 1 ? 'disabled' : ''} aria-label="아래로 이동">↓</button><button class="manager__button manager__action manager__button--danger" data-action="remove" data-id="${escapeHtml(item.id)}" aria-label="삭제">×</button></div></div>`;
+    }).join('');
   }
 
   function setStatus(message, isError = false) {
@@ -802,6 +839,7 @@
 
   onValue(setlistRef, (snapshot) => {
     currentSetlist = normalizeSetlist(snapshot.val());
+    visibleSetlistCount = Math.max(8, Math.min(visibleSetlistCount, currentSetlist.items.length));
     renderSetlist();
     renderBroadcastStatus();
     renderManager();
@@ -813,6 +851,10 @@
   }).catch(() => {});
 
   document.getElementById('setlist-manage').addEventListener('click', () => { manager.hidden = false; });
+  setlistMoreEl.addEventListener('click', () => {
+    visibleSetlistCount += 8;
+    renderSetlist();
+  });
   document.getElementById('manager-close').addEventListener('click', () => { manager.hidden = true; });
   manager.addEventListener('click', (event) => { if (event.target === manager) manager.hidden = true; });
 

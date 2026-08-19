@@ -39,6 +39,12 @@ a { color: inherit; }
   margin-bottom: 30px;
 }
 
+.masthead__links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .eyebrow,
 .back-link,
 .count,

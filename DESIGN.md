@@ -16,6 +16,7 @@ A quiet, compact busking card for a phone screen. The signature is a near-monoch
 | Active | `--accent` | `#0A0A0A` | Current song and primary actions |
 | Active text | `--accent-fg` | `#FAFAF9` | Text on active controls |
 | Success | `--success` | `#15803D` | Confirmed actions |
+| Warning | `--warning` | `#A16207` | Sound check state |
 | Error | `--error` | `#B91C1C` | Inline error feedback |
 
 Use black as the only action accent. Status colors communicate state only.
@@ -46,6 +47,11 @@ Use black as the only action accent. Status colors communicate state only.
 - **Structure**: position badge, title/subtitle, optional NOW label.
 - **States**: default, current, empty, loading, error.
 - **Accessibility**: semantic list; a song link is keyboard reachable when it has a code/lyrics page.
+
+### Broadcast status
+- **Structure**: dot and mono label in the hero; four compact controls in the manager.
+- **Variants**: OFF AIR, SOUND CHECK, BREAK, ON AIR.
+- **Accessibility**: the public label is a polite live region; status changes remain readable without color.
 
 ### Admin trigger and panel
 - **Structure**: compact text button, sign-in state, selection/search field, setlist actions.

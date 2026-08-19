@@ -26,6 +26,7 @@
     --accent-soft: rgba(0, 0, 0, 0.06);
     --success:     #15803D;
     --success-bg:  rgba(21, 128, 61, 0.08);
+    --warning:     #A16207;
 
     --gutter: 22px;
     --section-gap: 22px;
@@ -68,12 +69,18 @@
     letter-spacing: 1.5px;
     color: var(--muted);
   }
+  .hero__status { display: inline-flex; align-items: center; gap: 7px; }
+  .hero__status-text { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.7px; color: var(--muted); }
   .hero__dot {
     width: 8px; height: 8px;
     border-radius: 999px;
-    background: var(--accent);
+    background: var(--muted);
     box-shadow: 0 0 0 4px var(--accent-soft);
   }
+  .hero__status[data-status="sound-check"] .hero__dot { background: var(--warning); }
+  .hero__status[data-status="break"] .hero__dot { background: var(--success); }
+  .hero__status[data-status="on-air"] .hero__dot { background: var(--accent); }
+  .hero__status[data-status="on-air"] .hero__status-text { color: var(--fg); }
   .hero__title {
     margin: 0;
     font-family: var(--font-sans);
@@ -233,6 +240,8 @@
   .manager__status { min-height: 18px; margin: 0 0 12px; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
   .manager__status.is-error { color: var(--error); }
   .manager__form { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 12px 0; border-top: 1px dashed var(--line); border-bottom: 1px dashed var(--line); }
+  .manager__broadcast { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px; }
+  .manager__broadcast .manager__button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--accent-fg); }
   .manager__form input { min-width: 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--input-bg); color: var(--fg); font: 13px var(--font-sans); }
   .manager__form input:focus { border-color: var(--fg); outline: none; }
   .manager__list { display: flex; flex-direction: column; margin-top: 12px; }
@@ -454,7 +463,10 @@
   <header class="hero">
     <div class="hero__meta">
       <div class="hero__tag">웅의 언어</div>
-      <span class="hero__dot" aria-hidden="true"></span>
+      <div class="hero__status" id="broadcast-status" data-status="off-air" aria-live="polite">
+        <span class="hero__dot" aria-hidden="true"></span>
+        <span class="hero__status-text" id="broadcast-status-text">OFF AIR</span>
+      </div>
     </div>
     <h1 class="hero__title">language<br />._.by</h1>
     <p class="hero__bio">듣고 싶은 곡이 있다면 편하게 말씀해 주세요.<br />아래 인스타그램으로 DM을 보내주셔도 좋습니다.<br />아직 부족해서 못 부르는 곡이 더 많겠지만 <br />가지고 있는 언어로 표현할 수 있는 곡이라면 불러볼게요.</p>
@@ -515,6 +527,12 @@
           <button class="manager__button manager__button--primary" type="button" id="manager-next">다음 곡</button>
           <button class="manager__button" type="button" id="manager-logout">로그아웃</button>
         </div>
+        <div class="manager__broadcast" aria-label="공연 상태">
+          <button class="manager__button" type="button" data-broadcast-status="off-air" aria-pressed="true">OFF AIR</button>
+          <button class="manager__button" type="button" data-broadcast-status="sound-check" aria-pressed="false">SOUND CHECK</button>
+          <button class="manager__button" type="button" data-broadcast-status="break" aria-pressed="false">BREAK</button>
+          <button class="manager__button" type="button" data-broadcast-status="on-air" aria-pressed="false">ON AIR</button>
+        </div>
         <form class="manager__form" id="manager-add-form">
           <label class="sr-only" for="manager-song-title">곡 제목</label>
           <input id="manager-song-title" list="manager-song-options" placeholder="곡 목록 검색 또는 직접 입력" autocomplete="off" required>
@@ -543,8 +561,8 @@
       <div class="tabs__panel" id="panel-donate" role="tabpanel" aria-labelledby="tab-donate" data-active="true">
         <div class="account">
           <div class="account__info">
-            <div class="account__bank">케이뱅크 · 신지웅</div>
-            <div class="account__num" id="account-num">100-111-820115</div>
+            <div class="account__bank">카카오뱅크 · 신지웅</div>
+            <div class="account__num" id="account-num">3333-02-3238757</div>
           </div>
           <button class="copy-btn" type="button" id="copy-btn" data-copy="100111820115" aria-label="계좌번호 복사">
             <span class="copy-btn__default">
@@ -702,7 +720,8 @@
     appId: '1:572947564112:web:e440ea4b4855951c943355'
   };
 
-  const fallbackSetlist = { currentId: null, items: [] };
+  const fallbackSetlist = { currentId: null, items: [], broadcastStatus: 'off-air' };
+  const broadcastLabels = { 'off-air': 'OFF AIR', 'sound-check': 'SOUND CHECK', break: 'BREAK', 'on-air': 'ON AIR' };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
@@ -718,6 +737,8 @@
   const songOptions = document.getElementById('manager-song-options');
   const titleInput = document.getElementById('manager-song-title');
   const subtitleInput = document.getElementById('manager-song-subtitle');
+  const broadcastStatusEl = document.getElementById('broadcast-status');
+  const broadcastStatusTextEl = document.getElementById('broadcast-status-text');
   let currentSetlist = fallbackSetlist;
   let catalog = [];
   let activeUser = null;
@@ -729,7 +750,17 @@
   function normalizeSetlist(value) {
     if (!value || !Array.isArray(value.items)) return fallbackSetlist;
     const items = value.items.filter((item) => item && item.id && item.title);
-    return { currentId: items.some((item) => item.id === value.currentId) ? value.currentId : (items[0] || {}).id || null, items };
+    const broadcastStatus = broadcastLabels[value.broadcastStatus] ? value.broadcastStatus : 'off-air';
+    return { currentId: items.some((item) => item.id === value.currentId) ? value.currentId : (items[0] || {}).id || null, items, broadcastStatus };
+  }
+
+  function renderBroadcastStatus() {
+    const status = currentSetlist.broadcastStatus || 'off-air';
+    broadcastStatusEl.dataset.status = status;
+    broadcastStatusTextEl.textContent = broadcastLabels[status];
+    document.querySelectorAll('[data-broadcast-status]').forEach((button) => {
+      button.setAttribute('aria-pressed', button.dataset.broadcastStatus === status ? 'true' : 'false');
+    });
   }
 
   function renderSetlist() {
@@ -772,6 +803,7 @@
   onValue(setlistRef, (snapshot) => {
     currentSetlist = normalizeSetlist(snapshot.val());
     renderSetlist();
+    renderBroadcastStatus();
     renderManager();
   }, () => setStatus('실시간 목록을 불러오지 못했어요. Database URL과 규칙을 확인해 주세요.', true));
 
@@ -793,6 +825,12 @@
     const index = currentSetlist.items.findIndex((item) => item.id === currentSetlist.currentId);
     const next = currentSetlist.items[(index + 1) % currentSetlist.items.length];
     if (next) saveSetlist({ ...currentSetlist, currentId: next.id }, '다음 곡으로 변경했어요.');
+  });
+  document.querySelectorAll('[data-broadcast-status]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const broadcastStatus = button.dataset.broadcastStatus;
+      saveSetlist({ ...currentSetlist, broadcastStatus }, `${broadcastLabels[broadcastStatus]} 상태로 변경했어요.`);
+    });
   });
   document.getElementById('manager-add-form').addEventListener('submit', (event) => {
     event.preventDefault();

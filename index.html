@@ -194,6 +194,16 @@
     color: var(--accent);
   }
   .setlist__row.is-active .setlist__now { display: inline; }
+  .setlist__catalog {
+    align-self: flex-end;
+    margin-top: 4px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.6px;
+    text-decoration: none;
+  }
+  .setlist__catalog:hover { color: var(--fg); }
 
   /* ── Tabs ────────────────────────────────────────── */
   .tabs { display: flex; flex-direction: column; gap: 10px; }
@@ -469,6 +479,7 @@
         <span class="setlist__now">NOW</span>
       </button>
     </div>
+    <a class="setlist__catalog" href="songs/index.html">전체 곡 목록 ↗</a>
   </section>
 
   <!-- Block 4 — Support / Request tabs -->

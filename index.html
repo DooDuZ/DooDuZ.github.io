@@ -175,6 +175,7 @@
   .setlist__row.is-active .setlist__badge-icon { display: inline-flex; }
   .setlist__main { min-width: 0; flex: 1; }
   .setlist__title {
+    display: block;
     font-size: 13.5px;
     font-weight: 500;
     color: var(--fg);
@@ -182,6 +183,7 @@
   }
   .setlist__row.is-active .setlist__title { font-weight: 600; }
   .setlist__sub {
+    display: block;
     font-size: 10.5px;
     color: var(--muted);
     margin-top: 1px;
@@ -204,6 +206,44 @@
     text-decoration: none;
   }
   .setlist__catalog:hover { color: var(--fg); }
+  .setlist__tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .setlist__manage {
+    all: unset;
+    cursor: pointer;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.6px;
+  }
+  .setlist__manage:hover { color: var(--fg); }
+
+  /* ── Setlist manager ────────────────────────────── */
+  .manager[hidden] { display: none; }
+  .manager { position: fixed; inset: 0; z-index: 20; display: grid; place-items: end center; padding: 16px; background: rgba(10, 10, 10, 0.32); }
+  .manager__panel { width: min(100%, 480px); max-height: min(760px, calc(100dvh - 32px)); overflow: auto; padding: 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 16px 44px rgba(0, 0, 0, 0.18); }
+  .manager__head, .manager__item, .manager__actions { display: flex; align-items: center; gap: 8px; }
+  .manager__head { justify-content: space-between; margin-bottom: 14px; }
+  .manager__title { margin: 0; font-size: 16px; letter-spacing: -0.3px; }
+  .manager__close, .manager__button { border: 1px solid var(--line); border-radius: 8px; background: var(--input-bg); color: var(--fg); font: 600 11px var(--font-sans); cursor: pointer; }
+  .manager__close { width: 30px; height: 30px; font-size: 18px; font-weight: 400; }
+  .manager__button { padding: 8px 10px; }
+  .manager__button--primary { border-color: var(--accent); background: var(--accent); color: var(--accent-fg); }
+  .manager__button--danger { color: var(--error); }
+  .manager__button:disabled { cursor: not-allowed; opacity: 0.45; }
+  .manager__status { min-height: 18px; margin: 0 0 12px; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+  .manager__status.is-error { color: var(--error); }
+  .manager__form { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 12px 0; border-top: 1px dashed var(--line); border-bottom: 1px dashed var(--line); }
+  .manager__form input { min-width: 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--input-bg); color: var(--fg); font: 13px var(--font-sans); }
+  .manager__form input:focus { border-color: var(--fg); outline: none; }
+  .manager__list { display: flex; flex-direction: column; margin-top: 12px; }
+  .manager__item { padding: 9px 0; border-bottom: 1px dashed var(--line); }
+  .manager__item-main { min-width: 0; flex: 1; }
+  .manager__item-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; font-weight: 600; }
+  .manager__item-sub { margin-top: 2px; color: var(--muted); font-size: 10.5px; }
+  .manager__actions { flex-shrink: 0; }
+  .manager__action { width: 28px; height: 28px; padding: 0; }
+  .manager__empty { padding: 18px 0; color: var(--muted); font-size: 12px; text-align: center; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
 
   /* ── Tabs ────────────────────────────────────────── */
   .tabs { display: flex; flex-direction: column; gap: 10px; }
@@ -479,7 +519,39 @@
         <span class="setlist__now">NOW</span>
       </button>
     </div>
-    <a class="setlist__catalog" href="songs/index.html">전체 곡 목록 ↗</a>
+    <div class="setlist__tools">
+      <a class="setlist__catalog" href="songs/index.html">전체 곡 목록 ↗</a>
+      <button class="setlist__manage" type="button" id="setlist-manage">세트리스트 관리</button>
+    </div>
+  </section>
+
+  <section class="manager" id="setlist-manager" aria-labelledby="manager-title" aria-modal="true" role="dialog" hidden>
+    <div class="manager__panel">
+      <div class="manager__head">
+        <h2 class="manager__title" id="manager-title">세트리스트 관리</h2>
+        <button class="manager__close" type="button" id="manager-close" aria-label="관리 창 닫기">×</button>
+      </div>
+      <p class="manager__status" id="manager-status" aria-live="polite">Google 로그인 후 수정할 수 있어요.</p>
+      <div id="manager-signed-out">
+        <button class="manager__button manager__button--primary" type="button" id="manager-login">Google로 로그인</button>
+      </div>
+      <div id="manager-signed-in" hidden>
+        <div class="manager__actions" style="margin-bottom:12px">
+          <button class="manager__button manager__button--primary" type="button" id="manager-next">다음 곡</button>
+          <button class="manager__button" type="button" id="manager-seed">기본 목록 저장</button>
+          <button class="manager__button" type="button" id="manager-logout">로그아웃</button>
+        </div>
+        <form class="manager__form" id="manager-add-form">
+          <label class="sr-only" for="manager-song-title">곡 제목</label>
+          <input id="manager-song-title" list="manager-song-options" placeholder="곡 목록 검색 또는 직접 입력" autocomplete="off" required>
+          <datalist id="manager-song-options"></datalist>
+          <label class="sr-only" for="manager-song-subtitle">아티스트 또는 메모</label>
+          <input id="manager-song-subtitle" placeholder="아티스트 · 메모 (선택)" autocomplete="off">
+          <button class="manager__button manager__button--primary" type="submit">추가</button>
+        </form>
+        <div class="manager__list" id="manager-list"></div>
+      </div>
+    </div>
   </section>
 
   <!-- Block 4 — Support / Request tabs -->
@@ -587,18 +659,6 @@
 (function () {
   'use strict';
 
-  // ── Setlist toggle ───────────────────────────────
-  var setlist = document.getElementById('setlist');
-  if (setlist) {
-    setlist.addEventListener('click', function (e) {
-      var row = e.target.closest('.setlist__row');
-      if (!row) return;
-      var rows = setlist.querySelectorAll('.setlist__row');
-      rows.forEach(function (r) { r.classList.remove('is-active'); });
-      row.classList.add('is-active');
-    });
-  }
-
   // ── Tabs ─────────────────────────────────────────
   var tabBtns = document.querySelectorAll('.tabs__btn');
   tabBtns.forEach(function (btn) {
@@ -684,6 +744,153 @@
     window.addEventListener('load', renderQR);
   }
 })();
+</script>
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
+  import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
+  import { getDatabase, onValue, ref, set } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js';
+
+  const firebaseConfig = {
+    apiKey: 'AIzaSyBFcf4C4CsA-3SBm4FLoCzFQoYunBpCYa4',
+    authDomain: 'busking---today-set-list.firebaseapp.com',
+    databaseURL: 'https://busking---today-set-list-default-rtdb.asia-southeast1.firebasedatabase.app',
+    projectId: 'busking---today-set-list',
+    storageBucket: 'busking---today-set-list.firebasestorage.app',
+    messagingSenderId: '572947564112',
+    appId: '1:572947564112:web:e440ea4b4855951c943355'
+  };
+
+  const fallbackSetlist = {
+    currentId: 'default-3',
+    items: [
+      { id: 'default-1', title: 'Autumn Leaves', subtitle: 'Eva Cassidy / cover' },
+      { id: 'default-2', title: '사랑이 떠나가네', subtitle: '이상은 / cover' },
+      { id: 'default-3', title: '여름밤의 꿈', subtitle: 'original' },
+      { id: 'default-4', title: 'Moon River', subtitle: 'Henry Mancini / cover' },
+      { id: 'default-5', title: '이름 없는 노래 03', subtitle: 'original' }
+    ]
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const database = getDatabase(app);
+  const setlistRef = ref(database, 'todaySetlist');
+  const provider = new GoogleAuthProvider();
+  const setlistEl = document.getElementById('setlist');
+  const manager = document.getElementById('setlist-manager');
+  const statusEl = document.getElementById('manager-status');
+  const signedOutEl = document.getElementById('manager-signed-out');
+  const signedInEl = document.getElementById('manager-signed-in');
+  const managerList = document.getElementById('manager-list');
+  const songOptions = document.getElementById('manager-song-options');
+  const titleInput = document.getElementById('manager-song-title');
+  const subtitleInput = document.getElementById('manager-song-subtitle');
+  let currentSetlist = fallbackSetlist;
+  let catalog = [];
+  let activeUser = null;
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
+  }
+
+  function normalizeSetlist(value) {
+    if (!value || !Array.isArray(value.items)) return fallbackSetlist;
+    const items = value.items.filter((item) => item && item.id && item.title);
+    return { currentId: items.some((item) => item.id === value.currentId) ? value.currentId : (items[0] || {}).id || null, items };
+  }
+
+  function renderSetlist() {
+    if (!setlistEl) return;
+    if (!currentSetlist.items.length) {
+      setlistEl.innerHTML = '<p class="manager__empty">아직 오늘의 곡이 없어요.</p>';
+      return;
+    }
+    setlistEl.innerHTML = currentSetlist.items.map((item, index) => {
+      const active = item.id === currentSetlist.currentId;
+      const content = `<span class="setlist__badge"><span class="setlist__badge-num">${String(index + 1).padStart(2, '0')}</span><span class="setlist__badge-icon" aria-hidden="true">♪</span></span><span class="setlist__main"><span class="setlist__title">${escapeHtml(item.title)}</span><span class="setlist__sub">${escapeHtml(item.subtitle || '신청곡')}</span></span><span class="setlist__now">NOW</span>`;
+      return item.path ? `<a class="setlist__row ${active ? 'is-active' : ''}" role="listitem" href="${escapeHtml(item.path)}">${content}</a>` : `<div class="setlist__row ${active ? 'is-active' : ''}" role="listitem">${content}</div>`;
+    }).join('');
+  }
+
+  function renderManager() {
+    if (!activeUser || !managerList) return;
+    if (!currentSetlist.items.length) {
+      managerList.innerHTML = '<p class="manager__empty">곡을 추가해 보세요.</p>';
+      return;
+    }
+    managerList.innerHTML = currentSetlist.items.map((item, index) => `<div class="manager__item"><div class="manager__item-main"><div class="manager__item-title">${escapeHtml(item.title)}</div><div class="manager__item-sub">${escapeHtml(item.subtitle || '신청곡')}</div></div><div class="manager__actions"><button class="manager__button manager__action" data-action="current" data-id="${escapeHtml(item.id)}" aria-label="현재 곡으로 설정">●</button><button class="manager__button manager__action" data-action="up" data-id="${escapeHtml(item.id)}" ${index === 0 ? 'disabled' : ''} aria-label="위로 이동">↑</button><button class="manager__button manager__action" data-action="down" data-id="${escapeHtml(item.id)}" ${index === currentSetlist.items.length - 1 ? 'disabled' : ''} aria-label="아래로 이동">↓</button><button class="manager__button manager__action manager__button--danger" data-action="remove" data-id="${escapeHtml(item.id)}" aria-label="삭제">×</button></div></div>`).join('');
+  }
+
+  function setStatus(message, isError = false) {
+    statusEl.textContent = message;
+    statusEl.classList.toggle('is-error', isError);
+  }
+
+  async function saveSetlist(nextSetlist, successMessage) {
+    if (!activeUser) return;
+    try {
+      await set(setlistRef, nextSetlist);
+      setStatus(successMessage);
+    } catch (error) {
+      setStatus('저장 권한이 없어요. Realtime Database 규칙의 관리자 이메일을 확인해 주세요.', true);
+    }
+  }
+
+  onValue(setlistRef, (snapshot) => {
+    currentSetlist = normalizeSetlist(snapshot.val());
+    renderSetlist();
+    renderManager();
+  }, () => setStatus('실시간 목록을 불러오지 못했어요. Database URL과 규칙을 확인해 주세요.', true));
+
+  fetch('songs/catalog.json').then((response) => response.ok ? response.json() : []).then((songs) => {
+    catalog = Array.isArray(songs) ? songs : [];
+    songOptions.innerHTML = catalog.map((song) => `<option value="${escapeHtml(song.title)}"></option>`).join('');
+  }).catch(() => {});
+
+  document.getElementById('setlist-manage').addEventListener('click', () => { manager.hidden = false; });
+  document.getElementById('manager-close').addEventListener('click', () => { manager.hidden = true; });
+  manager.addEventListener('click', (event) => { if (event.target === manager) manager.hidden = true; });
+
+  document.getElementById('manager-login').addEventListener('click', async () => {
+    setStatus('Google 로그인 창을 여는 중이에요.');
+    try { await signInWithPopup(auth, provider); } catch (error) { setStatus(error.code === 'auth/unauthorized-domain' ? '이 도메인을 Firebase Authentication의 승인된 도메인에 추가해 주세요.' : '로그인하지 못했어요. 팝업 차단 여부를 확인해 주세요.', true); }
+  });
+  document.getElementById('manager-logout').addEventListener('click', () => signOut(auth));
+  document.getElementById('manager-seed').addEventListener('click', () => saveSetlist(fallbackSetlist, '기본 세트리스트를 저장했어요.'));
+  document.getElementById('manager-next').addEventListener('click', () => {
+    const index = currentSetlist.items.findIndex((item) => item.id === currentSetlist.currentId);
+    const next = currentSetlist.items[(index + 1) % currentSetlist.items.length];
+    if (next) saveSetlist({ ...currentSetlist, currentId: next.id }, '다음 곡으로 변경했어요.');
+  });
+  document.getElementById('manager-add-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const title = titleInput.value.trim();
+    if (!title) return;
+    const source = catalog.find((song) => song.title.toLocaleLowerCase('ko') === title.toLocaleLowerCase('ko'));
+    const item = { id: `song-${Date.now()}`, title, subtitle: subtitleInput.value.trim() || (source ? '곡 목록' : '신청곡') };
+    if (source) item.path = `songs/${source.path}`;
+    saveSetlist({ ...currentSetlist, items: [...currentSetlist.items, item] }, '곡을 추가했어요.');
+    titleInput.value = ''; subtitleInput.value = '';
+  });
+  managerList.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-action]');
+    if (!button) return;
+    const id = button.dataset.id;
+    const index = currentSetlist.items.findIndex((item) => item.id === id);
+    if (index < 0) return;
+    const items = [...currentSetlist.items];
+    if (button.dataset.action === 'current') saveSetlist({ ...currentSetlist, currentId: id }, '현재 곡으로 설정했어요.');
+    if (button.dataset.action === 'remove') saveSetlist({ currentId: currentSetlist.currentId === id ? (items[index + 1] || items[index - 1] || {}).id || null : currentSetlist.currentId, items: items.filter((item) => item.id !== id) }, '곡을 삭제했어요.');
+    if (button.dataset.action === 'up' && index > 0) { [items[index - 1], items[index]] = [items[index], items[index - 1]]; saveSetlist({ ...currentSetlist, items }, '순서를 변경했어요.'); }
+    if (button.dataset.action === 'down' && index < items.length - 1) { [items[index], items[index + 1]] = [items[index + 1], items[index]]; saveSetlist({ ...currentSetlist, items }, '순서를 변경했어요.'); }
+  });
+  onAuthStateChanged(auth, (user) => {
+    activeUser = user;
+    signedOutEl.hidden = Boolean(user);
+    signedInEl.hidden = !user;
+    setStatus(user ? `${user.email || '로그인한 계정'}으로 로그인했어요. 저장 권한은 Firebase 규칙이 확인합니다.` : 'Google 로그인 후 수정할 수 있어요.');
+    renderManager();
+  });
 </script>
 </body>
 </html>

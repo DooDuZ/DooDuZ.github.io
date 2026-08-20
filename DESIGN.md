@@ -29,6 +29,7 @@ Use black as the only action accent. Status colors communicate state only.
 | Body | 13.5px | 500 | List entries and controls |
 | Small | 12px | 400 | Supporting copy |
 | Mono label | 9.5px | 600 | Section labels, status and metadata |
+| Performance sheet | 7–11px mobile/tablet / 13px desktop | 500 | Chords and lyrics; restrained responsive sizing and -0.4px compact tracking prioritize preserving musical line structure |
 
 - Sans: Pretendard, system sans-serif fallback.
 - Mono: JetBrains Mono, monospace fallback.
@@ -40,6 +41,7 @@ Use black as the only action accent. Status colors communicate state only.
 - Page gutter: 22px; max content width: 480px.
 - Section gap: 22px; compact control gaps: 8px; standard panel padding: 12px.
 - Single-column document flow at every viewport. Overlays use the viewport; their internal content scrolls rather than the page growing sideways.
+- Performance sheets use 8px mobile gutters, tightening to 4px below 340px, so available width is reserved for chords and lyrics.
 
 ## 5. Components
 
@@ -62,6 +64,12 @@ Use black as the only action accent. Status colors communicate state only.
 ### Compact action button
 - **States**: default, hover, active, focus-visible, disabled.
 - **Motion**: 180ms color/border transition; reduced motion disables it.
+
+### Performance sheet
+- **Structure**: bordered sheet containing whitespace-sensitive monospaced chords and lyrics.
+- **Responsive priority**: reduce type fluidly before wrapping; wrap only lines that still exceed the viewport after reaching the 7px lower bound.
+- **Overflow**: horizontal scrolling is forbidden. Preserve authored whitespace and newlines with `pre-wrap`, then allow emergency breaking for exceptionally long chord charts and separators.
+- **Accessibility**: page zoom remains available; text must never be clipped or hidden off-canvas.
 
 ## 6. Motion & Interaction
 

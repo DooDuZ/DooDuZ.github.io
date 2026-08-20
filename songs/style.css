@@ -147,17 +147,16 @@ h1 {
 }
 
 .song-sheet {
-  overflow-x: auto;
+  overflow-x: hidden;
   margin-top: 22px;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--surface);
-  -webkit-overflow-scrolling: touch;
 }
 
 .song-sheet pre {
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
+  min-width: 0;
   margin: 0;
   padding: 20px;
   color: var(--fg);
@@ -165,12 +164,29 @@ h1 {
   font-size: 13px;
   line-height: 1.7;
   tab-size: 4;
-  white-space: pre;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+@media (max-width: 768px) {
+  .song-sheet pre {
+    font-size: clamp(7px, 1.6vw, 11px);
+    letter-spacing: -0.4px;
+  }
 }
 
 @media (max-width: 480px) {
-  .page { padding-top: 22px; }
+  .page { padding: 22px 8px 48px; }
   .masthead { margin-bottom: 24px; }
   .song-list { grid-template-columns: 1fr; }
-  .song-sheet pre { padding: 16px; font-size: 12px; }
+  .song-sheet pre {
+    padding: 12px 8px;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 340px) {
+  .page { padding-inline: 4px; }
+  .song-sheet pre { padding-inline: 4px; }
 }

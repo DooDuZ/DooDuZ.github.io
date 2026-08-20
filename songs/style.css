@@ -162,6 +162,7 @@ h1 {
   color: var(--fg);
   font-family: var(--font-mono);
   font-size: 13px;
+  font-weight: 500;
   line-height: 1.7;
   tab-size: 4;
   white-space: pre-wrap;
@@ -169,24 +170,23 @@ h1 {
   word-break: normal;
 }
 
+.sheet-line { display: block; }
+
+.sheet-line--chord { font-weight: 700; }
+
 @media (max-width: 768px) {
   .song-sheet pre {
-    font-size: clamp(7px, 1.6vw, 11px);
-    letter-spacing: -0.4px;
+    font-size: clamp(8px, 1.8vw, 11px);
+    letter-spacing: -0.5px;
   }
 }
 
 @media (max-width: 480px) {
-  .page { padding: 22px 8px 48px; }
+  .page { padding: 22px 4px 48px; }
   .masthead { margin-bottom: 24px; }
   .song-list { grid-template-columns: 1fr; }
   .song-sheet pre {
-    padding: 12px 8px;
+    padding: 12px 4px;
     line-height: 1.6;
   }
-}
-
-@media (max-width: 340px) {
-  .page { padding-inline: 4px; }
-  .song-sheet pre { padding-inline: 4px; }
 }

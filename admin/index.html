@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>관리자 페이지 불러오는 중</title>
+</head>
+<body>
+  <script>
+    fetch('/index.html')
+      .then(function (response) {
+        if (!response.ok) throw new Error('관리자 페이지를 불러오지 못했습니다.');
+        return response.text();
+      })
+      .then(function (html) {
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(function () {
+        document.body.textContent = '관리자 페이지를 불러오지 못했습니다.';
+      });
+  </script>
+</body>
+</html>

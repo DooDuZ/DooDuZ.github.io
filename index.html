@@ -238,6 +238,7 @@
     font-size: 9.5px;
     letter-spacing: 0.6px;
   }
+  .setlist__manage[hidden] { display: none; }
   .setlist__manage:hover { color: var(--fg); }
 
   /* ── Setlist manager ────────────────────────────── */
@@ -527,8 +528,8 @@
     </div>
     <button class="setlist__more" id="setlist-more" type="button" hidden></button>
     <div class="setlist__tools">
-      <a class="setlist__catalog" href="songs/index.html">전체 곡 목록 ↗</a>
-      <button class="setlist__manage" type="button" id="setlist-manage">세트리스트 관리</button>
+      <a class="setlist__catalog" href="/songs/index.html">전체 곡 목록 ↗</a>
+      <button class="setlist__manage" type="button" id="setlist-manage" hidden>세트리스트 관리</button>
     </div>
   </section>
 
@@ -751,6 +752,7 @@
   const setlistEl = document.getElementById('setlist');
   const pinnedSetlistEl = document.getElementById('setlist-pinned');
   const setlistMoreEl = document.getElementById('setlist-more');
+  const setlistManageButton = document.getElementById('setlist-manage');
   const manager = document.getElementById('setlist-manager');
   const statusEl = document.getElementById('manager-status');
   const signedOutEl = document.getElementById('manager-signed-out');
@@ -765,6 +767,8 @@
   let catalog = [];
   let activeUser = null;
   let visibleSetlistCount = 8;
+
+  setlistManageButton.hidden = window.location.pathname.replace(/\/+$/, '') !== '/admin';
 
   function escapeHtml(value) {
     return String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
@@ -798,7 +802,8 @@
     const renderSetlistRow = (item, index) => {
       const active = item.id === currentSetlist.currentId;
       const content = `<span class="setlist__badge"><span class="setlist__badge-num">${String(index + 1).padStart(2, '0')}</span><span class="setlist__badge-icon" aria-hidden="true">♪</span></span><span class="setlist__main"><span class="setlist__title">${escapeHtml(item.title)}</span><span class="setlist__sub">${escapeHtml(item.subtitle || '신청곡')}</span></span><span class="setlist__now">NOW</span>`;
-      return item.path ? `<a class="setlist__row ${active ? 'is-active' : ''}" role="listitem" href="${escapeHtml(item.path)}">${content}</a>` : `<div class="setlist__row ${active ? 'is-active' : ''}" role="listitem">${content}</div>`;
+      const itemPath = item.path ? (item.path.startsWith('/') ? item.path : `/${item.path}`) : '';
+      return itemPath ? `<a class="setlist__row ${active ? 'is-active' : ''}" role="listitem" href="${escapeHtml(itemPath)}">${content}</a>` : `<div class="setlist__row ${active ? 'is-active' : ''}" role="listitem">${content}</div>`;
     };
     setlistEl.innerHTML = visibleItems.map(renderSetlistRow).join('');
     const currentIndex = currentSetlist.items.findIndex((item) => item.id === currentSetlist.currentId);
@@ -845,12 +850,12 @@
     renderManager();
   }, () => setStatus('실시간 목록을 불러오지 못했어요. Database URL과 규칙을 확인해 주세요.', true));
 
-  fetch('songs/catalog.json').then((response) => response.ok ? response.json() : []).then((songs) => {
+  fetch('/songs/catalog.json').then((response) => response.ok ? response.json() : []).then((songs) => {
     catalog = Array.isArray(songs) ? songs : [];
     songOptions.innerHTML = catalog.map((song) => `<option value="${escapeHtml(song.title)}"></option>`).join('');
   }).catch(() => {});
 
-  document.getElementById('setlist-manage').addEventListener('click', () => { manager.hidden = false; });
+  setlistManageButton.addEventListener('click', () => { manager.hidden = false; });
   setlistMoreEl.addEventListener('click', () => {
     visibleSetlistCount += 8;
     renderSetlist();
@@ -880,7 +885,7 @@
     if (!title) return;
     const source = catalog.find((song) => song.title.toLocaleLowerCase('ko') === title.toLocaleLowerCase('ko'));
     const item = { id: `song-${Date.now()}`, title, subtitle: subtitleInput.value.trim() || (source ? '곡 목록' : '신청곡') };
-    if (source) item.path = `songs/${source.path}`;
+    if (source) item.path = `/songs/${source.path}`;
     saveSetlist({ ...currentSetlist, items: [...currentSetlist.items, item] }, '곡을 추가했어요.');
     titleInput.value = ''; subtitleInput.value = '';
   });

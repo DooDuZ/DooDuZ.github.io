@@ -273,37 +273,8 @@
   .manager__empty { padding: 18px 0; color: var(--muted); font-size: 12px; text-align: center; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
 
-  /* ── Tabs ────────────────────────────────────────── */
-  .tabs { display: flex; flex-direction: column; gap: 10px; }
-  .tabs__track {
-    display: flex; gap: 4px;
-    padding: 3px;
-    background: var(--input-bg);
-    border: 1px solid var(--line);
-    border-radius: 11px;
-  }
-  .tabs__btn {
-    all: unset;
-    cursor: pointer;
-    flex: 1;
-    padding: 8px 10px;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    background: transparent;
-    border-radius: 8px;
-    transition: all 180ms ease;
-    font-family: inherit;
-  }
-  .tabs__btn[aria-selected="true"] {
-    color: var(--accent-fg);
-    background: var(--accent);
-  }
-  .tabs__panel { display: none; flex-direction: column; gap: 8px; }
-  .tabs__panel[data-active="true"] { display: flex; }
-
   /* ── Donate panel ────────────────────────────────── */
+  .donate { display: flex; flex-direction: column; gap: 8px; }
   .account {
     display: flex; align-items: center; justify-content: space-between;
     gap: 10px;
@@ -385,43 +356,6 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     max-width: 55%;
   }
-
-  /* ── Request form ────────────────────────────────── */
-  .request { display: flex; flex-direction: column; gap: 8px; }
-  .request input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    background: var(--input-bg);
-    color: var(--fg);
-    font-family: inherit;
-    font-size: 13px;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-  .request input:focus { border-color: var(--fg); }
-  .request__submit {
-    margin-top: 2px;
-    padding: 11px 14px;
-    border-radius: 10px;
-    border: none;
-    background: var(--accent);
-    color: var(--accent-fg);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.4px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: background 200ms ease;
-  }
-  .request__submit.is-sent { background: var(--success); }
-  .request__submit__sent { display: none; align-items: center; gap: 8px; }
-  .request__submit.is-sent .request__submit__default { display: none; }
-  .request__submit.is-sent .request__submit__sent { display: inline-flex; }
-  .request__submit__default { display: inline-flex; align-items: center; gap: 8px; }
 
   /* ── QR / Share ──────────────────────────────────── */
   .qr {
@@ -567,80 +501,48 @@
     </div>
   </section>
 
-  <!-- Block 4 — Support / Request tabs -->
-  <section class="section" id="support" aria-label="후원 및 신청곡">
+  <!-- Block 4 — Support -->
+  <section class="section" id="support" aria-label="후원">
     <div class="section__head">
-      <div class="section__label">Support / Request</div>
+      <div class="section__label">Support</div>
       <div class="section__rule" aria-hidden="true"></div>
     </div>
-    <div class="tabs">
-      <div class="tabs__track" role="tablist" aria-label="후원/신청곡 전환">
-        <button class="tabs__btn" role="tab" aria-selected="true" aria-controls="panel-donate" id="tab-donate" data-tab="donate">후원</button>
-        <button class="tabs__btn" role="tab" aria-selected="false" aria-controls="panel-request" id="tab-request" data-tab="request">신청곡</button>
-      </div>
-
-      <div class="tabs__panel" id="panel-donate" role="tabpanel" aria-labelledby="tab-donate" data-active="true">
-        <div class="account">
-          <div class="account__info">
-            <div class="account__bank">카카오뱅크 · 신지웅</div>
-            <div class="account__num" id="account-num">3333-02-3238757</div>
-          </div>
-          <button class="copy-btn" type="button" id="copy-btn" data-copy="100111820115" aria-label="계좌번호 복사">
-            <span class="copy-btn__default">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                <rect x="9" y="9" width="11" height="11" rx="2"/>
-                <path d="M5 15V6a2 2 0 0 1 2-2h9"/>
-              </svg>
-              복사
-            </span>
-            <span class="copy-btn__copied">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M4 12l5 5L20 6"/>
-              </svg>
-              복사됨
-            </span>
-          </button>
+    <div class="donate">
+      <div class="account">
+        <div class="account__info">
+          <div class="account__bank">카카오뱅크 · 신지웅</div>
+          <div class="account__num" id="account-num">3333-02-3238757</div>
         </div>
-        <a class="donate-link" href="supertoss://send?amount=0&amp;bank=%EC%B9%B4%EC%B9%B4%EC%98%A4%EB%B1%85%ED%81%AC&amp;accountNo=3333023238757&amp;origin=qr">
-          <span class="donate-link__left">
-            <span class="donate-link__tag">TOSS</span>
-            <span class="donate-link__label">토스 송금</span>
+        <button class="copy-btn" type="button" id="copy-btn" data-copy="3333023238757" aria-label="계좌번호 복사">
+          <span class="copy-btn__default">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <rect x="9" y="9" width="11" height="11" rx="2"/>
+              <path d="M5 15V6a2 2 0 0 1 2-2h9"/>
+            </svg>
+            복사
           </span>
-          <span class="donate-link__url">토스 앱으로 열기 ↗</span>
-        </a>
-        <a class="donate-link" href="https://qr.kakaopay.com/281006011000003534817840" target="_blank" rel="noreferrer">
-          <span class="donate-link__left">
-            <span class="donate-link__tag">KAKAO</span>
-            <span class="donate-link__label">카카오페이</span>
+          <span class="copy-btn__copied">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 12l5 5L20 6"/>
+            </svg>
+            복사됨
           </span>
-          <span class="donate-link__url">카카오페이로 열기 ↗</span>
-        </a>
+        </button>
       </div>
-
-      <div class="tabs__panel" id="panel-request" role="tabpanel" aria-labelledby="tab-request" data-active="false">
-        <form class="request" id="request-form" novalidate>
-          <label class="sr-only" for="req-title">곡 제목</label>
-          <input id="req-title" name="title" type="text" placeholder="곡 제목 *" autocomplete="off" required />
-          <label class="sr-only" for="req-artist">아티스트</label>
-          <input id="req-artist" name="artist" type="text" placeholder="아티스트 (선택)" autocomplete="off" />
-          <label class="sr-only" for="req-from">신청자</label>
-          <input id="req-from" name="from" type="text" placeholder="누구한테? (선택, 예: 지나가던 직장인)" autocomplete="off" />
-          <button class="request__submit" type="submit" id="request-submit">
-            <span class="request__submit__default">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3 12l18-8-8 18-2-8-8-2z"/>
-              </svg>
-              신청곡 보내기
-            </span>
-            <span class="request__submit__sent">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M4 12l5 5L20 6"/>
-              </svg>
-              전달됐어요
-            </span>
-          </button>
-        </form>
-      </div>
+      <a class="donate-link" href="supertoss://send?amount=0&amp;bank=%EC%B9%B4%EC%B9%B4%EC%98%A4%EB%B1%85%ED%81%AC&amp;accountNo=3333023238757&amp;origin=qr">
+        <span class="donate-link__left">
+          <span class="donate-link__tag">TOSS</span>
+          <span class="donate-link__label">토스 송금</span>
+        </span>
+        <span class="donate-link__url">토스 앱으로 열기 ↗</span>
+      </a>
+      <a class="donate-link" href="https://qr.kakaopay.com/281006011000003534817840" target="_blank" rel="noreferrer">
+        <span class="donate-link__left">
+          <span class="donate-link__tag">KAKAO</span>
+          <span class="donate-link__label">카카오페이</span>
+        </span>
+        <span class="donate-link__url">카카오페이로 열기 ↗</span>
+      </a>
     </div>
   </section>
 
@@ -655,19 +557,6 @@
 <script>
 (function () {
   'use strict';
-
-  // ── Tabs ─────────────────────────────────────────
-  var tabBtns = document.querySelectorAll('.tabs__btn');
-  tabBtns.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var key = btn.getAttribute('data-tab');
-      tabBtns.forEach(function (b) {
-        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
-      });
-      document.getElementById('panel-donate').setAttribute('data-active', key === 'donate' ? 'true' : 'false');
-      document.getElementById('panel-request').setAttribute('data-active', key === 'request' ? 'true' : 'false');
-    });
-  });
 
   // ── Copy account number ─────────────────────────
   var copyBtn = document.getElementById('copy-btn');
@@ -700,28 +589,6 @@
       document.body.removeChild(ta);
       done();
     } catch (e) {}
-  }
-
-  // ── Request form ─────────────────────────────────
-  var form = document.getElementById('request-form');
-  var submit = document.getElementById('request-submit');
-  if (form && submit) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var title = (document.getElementById('req-title').value || '').trim();
-      if (!title) return;
-      var artist = (document.getElementById('req-artist').value || '').trim();
-      var from = (document.getElementById('req-from').value || '').trim();
-      // TODO: connect real backend (Formspree / Google Form / Notion).
-      console.log('[request]', { title: title, artist: artist, from: from, at: new Date().toISOString() });
-      submit.classList.add('is-sent');
-      submit.disabled = true;
-      setTimeout(function () {
-        submit.classList.remove('is-sent');
-        submit.disabled = false;
-        form.reset();
-      }, 2200);
-    });
   }
 
 })();
